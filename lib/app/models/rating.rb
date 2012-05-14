@@ -1,8 +1,9 @@
 class Rating < ActiveRecord::Base
   belongs_to :rate
   belongs_to :rateable, :polymorphic => true
-  
-  validates_uniqueness_of :user_id, :scope => [:rateable_id, :rateable_type]
+  belongs_to :rate_on, :polymorphic  => true
+
+  validates_uniqueness_of :professional_id, :scope => [:rateable_id, :rateable_type, :rate_on_id, :rate_on_type]
 
   class << self
 
@@ -18,10 +19,10 @@ class Rating < ActiveRecord::Base
     #
     def parse_as(ratings, output = :xml)
       if output == :xml
-        ratings.to_xml(:only => [:user_id, :free_text, :rater_name, :created_at],
+        ratings.to_xml(:only => [:professional_id, :free_text, :rater_name, :created_at],
                        :methods => [:score])
       elsif output == :json
-        ratings.to_json(:only => [:user_id, :free_text, :rater_name, :created_at],
+        ratings.to_json(:only => [:professional_id, :free_text, :rater_name, :created_at],
                         :methods => [:score])
       end
     end
@@ -36,3 +37,4 @@ class Rating < ActiveRecord::Base
   end
 
 end
+

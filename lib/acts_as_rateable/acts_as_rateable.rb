@@ -10,7 +10,7 @@ module ActiveRecord
 			      r = Rating.new
 			      r.rate = rate
 			      r.rateable = proxy_owner
-			      r.user_id = rate.user_id
+			      r.professional_id = rate.professional_id
             r.free_text = rate.free_text
             r.rater_name = rate.rater_name
 			      r.save
@@ -21,19 +21,19 @@ module ActiveRecord
 	      def acts_as_rateable(options = {})
 	        has_many :ratings, :as => :rateable, :dependent => :destroy, :include => :rate
 	        has_many :rates, :through => :ratings, :extend => AssignRateWithUserId
-	        
+
 	        include ActiveRecord::Acts::Rateable::InstanceMethods
 	        extend ActiveRecord::Acts::Rateable::SingletonMethods
 	      end
 	    end
-			
+
 			module SingletonMethods
 				# Find all objects rated by score.
 				def find_average_of( score )
           find(:all, :include => [:rates] ).collect {|i| i if i.average_rating.to_i == score }.compact
 				end
 			end
-			
+
 			module InstanceMethods
 				##
         # Rates the object by a given score. A user object can be passed to the method.
@@ -44,14 +44,14 @@ module ActiveRecord
         #
         # todo refactor the 'id' & 'login' method names to the acts_as_rateable options hash and make it configurable
         #
-				def rate_it( score, user, free_text = "" )
+				def rate_it( score, professional, free_text = "" )
 					return unless score
 					rate = Rate.find_or_create_by_score( score.to_i )
-          raise "User must respond to 'id' in order to set the user ID!" unless user.respond_to? :id
-          raise "User must respond to 'login' in order to set the rater name!" unless user.respond_to? :login
-          rate.user_id = user.id
+          raise "User must respond to 'id' in order to set the user ID!" unless professional.respond_to? :id
+          raise "User must respond to 'login' in order to set the rater name!" unless professional.respond_to? :name
+          rate.professional_id = professional.id
           rate.free_text = free_text
-          rate.rater_name = user.login
+          rate.rater_name = professional.name
 					rates << rate
 				end
 
@@ -65,26 +65,27 @@ module ActiveRecord
 				def average_rating_round
 					average_rating.round
 				end
-		
+
 				# Returns the average rating in percent. The maximal score must be provided	or the default value (5) will be used.
 				# TODO make maximum_rating automatically calculated.
 				def average_rating_percent( maximum_rating = 5 )
 					f = 100 / maximum_rating.to_f
 					average_rating * f
 				end
-				
+
 				# Checks whether a user rated the object or not.
-				def rated_by?( user )
-					ratings.detect {|r| r.user_id == user.id }
+				def rated_by?( professional )
+					ratings.detect {|r| r.professional_id == professional.id }
         end
 
         def parse_ratings(output = :xml)
           Rating.parse_as(ratings, output)
         end
 			end
-			
+
 		end
   end
 end
 
 ActiveRecord::Base.send(:include, ActiveRecord::Acts::Rateable)
+
