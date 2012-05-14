@@ -44,15 +44,17 @@ module ActiveRecord
         #
         # todo refactor the 'id' & 'login' method names to the acts_as_rateable options hash and make it configurable
         #
-				def rate_it( score, professional, free_text = "" )
+				def rate_it( score, professional, rateable, rate_on )
 					return unless score
 					rate = Rate.find_or_create_by_score( score.to_i )
           raise "User must respond to 'id' in order to set the user ID!" unless professional.respond_to? :id
           raise "User must respond to 'login' in order to set the rater name!" unless professional.respond_to? :name
-          rate.professional_id = professional.id
-          rate.free_text = free_text
-          rate.rater_name = professional.name
-					rates << rate
+#         rate.professional_id = professional.id
+#         rate.free_text = free_text
+#         rate.rater_name = professional.name
+
+					r = Rating.new(:rate => rate, :rateable => rateable, :rate_on => rate_on )
+					r.save
 				end
 
 				# Calculates the average rating. Calculation based on the already given scores.
