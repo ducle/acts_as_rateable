@@ -1,5 +1,6 @@
 class Rating < ActiveRecord::Base
   belongs_to :rate
+  belongs_to :professional
   belongs_to :rateable, :polymorphic => true
   belongs_to :rate_on, :polymorphic  => true
 
