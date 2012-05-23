@@ -10,7 +10,7 @@ module ActiveRecord
 			      r = Rating.new
 			      r.rate = rate
 			      r.rateable = proxy_owner
-			      r.professional_id = rate.professional_id
+			      r.user_id = rate.user_id
             r.free_text = rate.free_text
             r.rater_name = rate.rater_name
 			      r.save
@@ -44,16 +44,16 @@ module ActiveRecord
         #
         # todo refactor the 'id' & 'login' method names to the acts_as_rateable options hash and make it configurable
         #
-				def rate_it( score, professional, rate_on )
+				def rate_it( score, user, rate_on )
 					return unless score
 					rate = Rate.find_or_create_by_score( score.to_i )
-          raise "User must respond to 'id' in order to set the user ID!" unless professional.respond_to? :id
-          raise "User must respond to 'login' in order to set the rater name!" unless professional.respond_to? :name
+          raise "User must respond to 'id' in order to set the user ID!" unless user.respond_to? :id
+          raise "User must respond to 'login' in order to set the rater name!" unless user.respond_to? :name
 #         rate.professional_id = professional.id
 #         rate.free_text = free_text
 #         rate.rater_name = professional.name
 
-					r = Rating.new(:rate => rate, :rateable => self, :rate_on => rate_on, :professional_id => professional.id )
+					r = Rating.new(:rate => rate, :rateable => self, :rate_on => rate_on, :user_id => user.id )
 					r.save
 				end
 
@@ -76,8 +76,8 @@ module ActiveRecord
 				end
 
 				# Checks whether a user rated the object or not.
-				def rated_by?( professional )
-					ratings.detect {|r| r.professional_id == professional.id }
+				def rated_by?( user )
+					ratings.detect {|r| r.user_id == user.id }
         end
 
         def parse_ratings(output = :xml)
