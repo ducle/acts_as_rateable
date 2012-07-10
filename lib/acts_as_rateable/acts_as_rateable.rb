@@ -50,7 +50,7 @@ module ActiveRecord
           raise "User must respond to 'id' in order to set the user ID!" unless user.respond_to? :id
           raise "User must respond to 'login' in order to set the rater name!" unless user.respond_to? :name
 #         rate.professional_id = professional.id
-          rate.free_text = free_text
+#         rate.free_text = free_text
 #         rate.rater_name = professional.name
 
 					r = Rating.new(:rate => rate, :rateable => self, :rate_on => rate_on, :user_id => user.id, :free_text => free_text)
