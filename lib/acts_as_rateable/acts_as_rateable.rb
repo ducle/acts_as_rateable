@@ -44,16 +44,16 @@ module ActiveRecord
         #
         # todo refactor the 'id' & 'login' method names to the acts_as_rateable options hash and make it configurable
         #
-				def rate_it( score, user, rate_on )
+				def rate_it( score, user, rate_on, free_text = nil )
 					return unless score
 					rate = Rate.find_or_create_by_score( score.to_i )
           raise "User must respond to 'id' in order to set the user ID!" unless user.respond_to? :id
           raise "User must respond to 'login' in order to set the rater name!" unless user.respond_to? :name
 #         rate.professional_id = professional.id
-#         rate.free_text = free_text
+          rate.free_text = free_text
 #         rate.rater_name = professional.name
 
-					r = Rating.new(:rate => rate, :rateable => self, :rate_on => rate_on, :user_id => user.id )
+					r = Rating.new(:rate => rate, :rateable => self, :rate_on => rate_on, :user_id => user.id, :free_text => free_text)
 					r.save
 				end
 
